@@ -32,5 +32,5 @@ export async function setupFrontendProxy(
     changeOrigin: true,
     ws: true,
   });
-  app.use(useUnless(['/api', '/public'], frontendProxy));
+  app.use(useUnless(['/api', '/public', '/realtime'], frontendProxy));
 }

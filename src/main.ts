@@ -7,6 +7,7 @@ import { LogLevel } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { WsAdapter } from '@nestjs/platform-ws';
 
 import { AppModule } from './app.module';
 import { AppConfig } from './config/app.config';
@@ -16,6 +17,7 @@ import { MediaConfig } from './config/media.config';
 import { ErrorExceptionMapping } from './errors/error-mapping';
 import { ConsoleLoggerService } from './logger/console-logger.service';
 import { BackendType } from './media/backends/backend-type.enum';
+import { YjsWebsocketAdapter } from './realtime/editor/yjs-websocket.adapter';
 import { setupSpecialGroups } from './utils/createSpecialGroups';
 import { setupFrontendProxy } from './utils/frontend-integration';
 import { setupSessionMiddleware } from './utils/session';
@@ -35,6 +37,8 @@ async function bootstrap(): Promise<void> {
   const databaseConfig = configService.get<DatabaseConfig>('databaseConfig');
   const authConfig = configService.get<AuthConfig>('authConfig');
   const mediaConfig = configService.get<MediaConfig>('mediaConfig');
+
+  app.useWebSocketAdapter(new YjsWebsocketAdapter(app));
 
   if (!appConfig || !databaseConfig || !authConfig || !mediaConfig) {
     logger.error('Could not initialize config, aborting.', 'AppBootstrap');
@@ -81,7 +85,7 @@ async function bootstrap(): Promise<void> {
   app.useStaticAssets('public', {
     prefix: '/public/',
   });
-  const { httpAdapter } = app.get(HttpAdapterHost);
+  const {httpAdapter} = app.get(HttpAdapterHost);
   app.useGlobalFilters(new ErrorExceptionMapping(httpAdapter));
   await app.listen(appConfig.port);
   logger.log(`Listening on port ${appConfig.port}`, 'AppBootstrap');

@@ -123,7 +123,7 @@ export class ConsoleLoggerService implements LoggerService {
         JSON.stringify(message, null, 2),
       )}\n`;
     } else {
-      output = color(ConsoleLoggerService.sanitize(message as string));
+      output = color(ConsoleLoggerService.sanitize(String(message)));
     }
 
     const localeStringOptions: DateTimeFormatOptions = {
