@@ -1199,18 +1199,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/websockets@npm:7.6.17":
-  version: 7.6.17
-  resolution: "@nestjs/websockets@npm:7.6.17"
+"@nestjs/websockets@npm:8.4.4":
+  version: 8.4.4
+  resolution: "@nestjs/websockets@npm:8.4.4"
   dependencies:
     iterare: 1.2.1
-    tslib: 2.2.0
+    object-hash: 3.0.0
+    tslib: 2.3.1
   peerDependencies:
-    "@nestjs/common": ^7.0.0
-    "@nestjs/core": ^7.0.0
+    "@nestjs/common": ^8.0.0
+    "@nestjs/core": ^8.0.0
+    "@nestjs/platform-socket.io": ^8.0.0
     reflect-metadata: ^0.1.12
-    rxjs: ^6.0.0
-  checksum: 0be159146b6fffb1ac56418d62ef6d4697583420c33385c2850fcd6592241e2f72eaec16009c9d782da82e7e31300095df935810bf48649ad65f2a081d6c00eb
+    rxjs: ^7.1.0
+  peerDependenciesMeta:
+    "@nestjs/platform-socket.io":
+      optional: true
+  checksum: eb3e2d45a95f571bd15dc0f9cb77c80cf980bce630497b2b79cf75e8cd7459084ad21c4239d676f1ab5e8d8c7ff04ee02ee1183e5b4358889a37bfb5a15eeb86
   languageName: node
   linkType: hard
 
@@ -1507,6 +1512,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/cookie@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@types/cookie@npm:0.5.0"
+  checksum: c0ea731cfe2f08dbc8851fa27212e5b34dadb871c14892d309b0970a158d36bf3d20324847263e0698ce6b1c3a5f151bd4fe45c0f9fc3243d1c8115e41d0e1ce
+  languageName: node
+  linkType: hard
+
 "@types/cookiejar@npm:*":
   version: 2.1.2
   resolution: "@types/cookiejar@npm:2.1.2"
@@ -1724,10 +1736,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:4.14.170":
-  version: 4.14.170
-  resolution: "@types/lodash@npm:4.14.170"
-  checksum: 238a440804e787b85461cc280a11926c80779f7502fec21a70b4424d5feba4cc34cdcbbbc1dca2ec5e75b06d5dc42e42add798be3b6651e8dce9f4b5318d6022
+"@types/lodash@npm:4.14.181":
+  version: 4.14.181
+  resolution: "@types/lodash@npm:4.14.181"
+  checksum: 0d1863d8383fd2f8bb42e9e3fc1d6255bb88ff034d6df848941063698944313dae944fc1270315613e3d303fae7c7a9a86085ad3235ed6204c56c4b0b3699aa9
   languageName: node
   linkType: hard
 
@@ -1914,12 +1926,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ws@npm:7.4.4":
-  version: 7.4.4
-  resolution: "@types/ws@npm:7.4.4"
+"@types/ws@npm:8.5.3":
+  version: 8.5.3
+  resolution: "@types/ws@npm:8.5.3"
   dependencies:
     "@types/node": "*"
-  checksum: b5365dff8f13a73787267dab830b4bd9dfe3477a2baeea061539cb0ceaf8acf35501ddbe24f24fa1ead622b61bfccdf3ccb4856d39113f7c7568125743690362
+  checksum: 0ce46f850d41383fcdc2149bcacc86d7232fa7a233f903d2246dff86e31701a02f8566f40af5f8b56d1834779255c04ec6ec78660fe0f9b2a69cf3d71937e4ae
   languageName: node
   linkType: hard
 
@@ -3637,6 +3649,13 @@ __metadata:
   version: 0.4.2
   resolution: "cookie@npm:0.4.2"
   checksum: a00833c998bedf8e787b4c342defe5fa419abd96b32f4464f718b91022586b8f1bafbddd499288e75c037642493c83083da426c6a9080d309e3bd90fd11baa9b
+  languageName: node
+  linkType: hard
+
+"cookie@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "cookie@npm:0.5.0"
+  checksum: 1f4bd2ca5765f8c9689a7e8954183f5332139eb72b6ff783d8947032ec1fdf43109852c178e21a953a30c0dd42257828185be01b49d1eb1a67fd054ca588a180
   languageName: node
   linkType: hard
 
@@ -5383,16 +5402,17 @@ __metadata:
     "@nestjs/swagger": 5.2.1
     "@nestjs/testing": 8.4.4
     "@nestjs/typeorm": 8.0.3
-    "@nestjs/websockets": 7.6.17
+    "@nestjs/websockets": 8.4.4
     "@trivago/prettier-plugin-sort-imports": 3.2.0
     "@tsconfig/node12": 1.0.9
     "@types/bcrypt": 5.0.0
     "@types/cli-color": 2.0.2
+    "@types/cookie": ^0.5.0
     "@types/cron": 1.7.3
     "@types/express": 4.17.13
     "@types/express-session": 1.17.4
     "@types/jest": 27.4.1
-    "@types/lodash": 4.14.170
+    "@types/lodash": 4.14.181
     "@types/minio": 7.0.13
     "@types/mysql": 2.15.21
     "@types/node": 16.11.27
@@ -5402,7 +5422,7 @@ __metadata:
     "@types/pg": 8.6.5
     "@types/source-map-support": 0.5.4
     "@types/supertest": 2.0.12
-    "@types/ws": 7.4.4
+    "@types/ws": 8.5.3
     "@typescript-eslint/eslint-plugin": 5.19.0
     "@typescript-eslint/parser": 5.19.0
     base32-encode: 1.2.0
@@ -5411,6 +5431,7 @@ __metadata:
     class-validator: 0.13.2
     cli-color: 2.0.2
     connect-typeorm: 1.1.4
+    cookie: ^0.5.0
     eslint: 8.13.0
     eslint-config-prettier: 8.5.0
     eslint-plugin-import: 2.26.0
@@ -5423,7 +5444,7 @@ __metadata:
     jest: 27.5.1
     joi: 17.6.0
     ldapauth-fork: ^5.0.2
-    lib0: 0.2.42
+    lib0: 0.2.51
     minio: 7.0.27
     mocked-env: 1.3.5
     mysql: 2.18.1
@@ -5449,8 +5470,8 @@ __metadata:
     typeorm: 0.2.45
     typescript: 4.6.3
     y-protocols: 1.0.5
-    y-websocket: 1.3.15
-    yjs: 13.5.10
+    y-websocket: 1.4.1
+    yjs: 13.5.34
   languageName: unknown
   linkType: soft
 
@@ -6978,16 +6999,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lib0@npm:0.2.42":
-  version: 0.2.42
-  resolution: "lib0@npm:0.2.42"
-  dependencies:
-    isomorphic.js: ^0.2.4
-  checksum: 35df110c3e4c0df5e04c12d242312144169612ab489cd9fc11cdd142e892f5c52933c957411f13a2b149547e6918c71f54903742cf6f87c7cc42fbb92b9467b0
-  languageName: node
-  linkType: hard
-
-"lib0@npm:^0.2.31, lib0@npm:^0.2.41, lib0@npm:^0.2.42":
+"lib0@npm:0.2.51, lib0@npm:^0.2.31, lib0@npm:^0.2.42, lib0@npm:^0.2.49":
   version: 0.2.51
   resolution: "lib0@npm:0.2.51"
   dependencies:
@@ -10512,9 +10524,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"y-websocket@npm:1.3.15":
-  version: 1.3.15
-  resolution: "y-websocket@npm:1.3.15"
+"y-websocket@npm:1.4.1":
+  version: 1.4.1
+  resolution: "y-websocket@npm:1.4.1"
   dependencies:
     lib0: ^0.2.42
     lodash.debounce: ^4.0.8
@@ -10529,8 +10541,9 @@ __metadata:
     y-leveldb:
       optional: true
   bin:
+    y-websocket: bin/server.js
     y-websocket-server: bin/server.js
-  checksum: 1b51d0608af25e1abd9cb86138867c935bec338530a3b3b7f88ec06b2647d55447b8e4420803e3d11dcef0d0f0a27c9c5596f1f99a28170694b0043103820b93
+  checksum: 57ea2c83074442ba2e32218a2fdbafcced0c16f51a1ce783892bfc6b5b0e0eb9c01cab35e1edbaaf65702a825226761d61dd8f6de7be2b87e3a0d7e1e67171e5
   languageName: node
   linkType: hard
 
@@ -10599,12 +10612,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yjs@npm:13.5.10":
-  version: 13.5.10
-  resolution: "yjs@npm:13.5.10"
+"yjs@npm:13.5.34":
+  version: 13.5.34
+  resolution: "yjs@npm:13.5.34"
   dependencies:
-    lib0: ^0.2.41
-  checksum: 5d9999bc1c569396d3965976064cdeb3fd6e9b2e8521d97edd26c2da954552b1ffcafaa76334b53dfc489997b84f200d05d0a8bfe414ad94e3bda4657cecccb1
+    lib0: ^0.2.49
+  checksum: 1d52c45f53d42db183162e5e576bc331122af80c6a4661d096de91469c6bf8611860f0dfaa2f5dce671a10c7a04ea49f9431188a1a018d7fa4271a02f1a4b6fa
   languageName: node
   linkType: hard
 

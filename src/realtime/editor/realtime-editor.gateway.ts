@@ -3,26 +3,25 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import { UseGuards } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
+import { parse as parseCookie } from 'cookie';
 import { IncomingMessage } from 'http';
 import { decoding, encoding } from 'lib0';
 import WebSocket from 'ws';
-import AwarenessProtocol from 'y-protocols/awareness';
-import SyncProtocol from 'y-protocols/sync';
+import { applyAwarenessUpdate } from 'y-protocols/awareness';
+import { readSyncMessage } from 'y-protocols/sync';
 
-import { RequestUser } from '../../api/utils/request-user.decorator';
-import { SessionGuard } from '../../identity/session.guard';
 import { ConsoleLoggerService } from '../../logger/console-logger.service';
-import { Note } from '../../notes/note.entity';
 import { NotesService } from '../../notes/notes.service';
 import { PermissionsService } from '../../permissions/permissions.service';
-import { User } from '../../users/user.entity';
+import { SessionService } from '../../session/session.service';
+import { UsersService } from '../../users/users.service';
+import { HEDGEDOC_SESSION } from '../../utils/session';
 import { MessageType } from './message-type';
 import { MultiClientAwarenessYDoc } from './multi-client-awareness-y-doc';
 import { getNoteFromRealtimePath } from './utils/get-note-from-realtime-path';
@@ -41,7 +40,9 @@ export class RealtimeEditorGateway
   constructor(
     private readonly logger: ConsoleLoggerService,
     private noteService: NotesService,
+    private userService: UsersService,
     private permissionsService: PermissionsService,
+    private sessionService: SessionService,
   ) {
     this.logger.setContext(RealtimeEditorGateway.name);
   }
@@ -76,6 +77,12 @@ export class RealtimeEditorGateway
     }
   }
 
+  handleConnectionError(client: WebSocket, message: string): void {
+    // TODO Send error message to client to avoid reconnects for same note
+    this.logger.log('Realtime connection closed: ' + message);
+    client.close();
+  }
+
   /**
    * Handler that is called for each new WebSocket client connection.
    * Checks whether the requested URL path is valid, whether the requested note
@@ -84,41 +91,58 @@ export class RealtimeEditorGateway
    *
    * @param client The WebSocket client object.
    * @param req The underlying HTTP request of the WebSocket connection.
-   * @param user The user that connected to the WebSocket.
    */
-  @UseGuards(SessionGuard)
   async handleConnection(
     client: WebSocket,
     req: IncomingMessage,
-    @RequestUser() user: User,
   ): Promise<void> {
     client.on('close', () => this.handleDisconnect(client));
-    let note: Note;
-    try {
-      note = await getNoteFromRealtimePath(this.noteService, req.url ?? '');
-    } catch (e) {
-      // TODO Send error message to client to avoid reconnects for same note
-      this.logger.log('Realtime connection closed: ' + String(e));
-      client.close();
-      return;
-    }
 
-    if (!this.permissionsService.mayRead(user, note)) {
-      // TODO Send error message to client to avoid reconnects for same note
-      client.close();
-      this.logger.log(
-        `Reading note '${note.id}' by user '${user.username}' denied!`,
+    const cookieHeader = req.headers.cookie;
+    if (!cookieHeader) {
+      return this.handleConnectionError(client, 'No cookie header present');
+    }
+    const sessionCookie = parseCookie(cookieHeader);
+    const cookieContent = sessionCookie[HEDGEDOC_SESSION];
+
+    // const unsignedCookieContent = unsign();
+    // TODO Verify signature of cookie content
+    if (!cookieContent) {
+      return this.handleConnectionError(
+        client,
+        `No ${HEDGEDOC_SESSION} cookie found`,
       );
-      return;
     }
+    const sessionId = cookieContent.slice(2).split('.')[0];
+    try {
+      const username = await this.sessionService.getUsernameFromSessionId(
+        sessionId,
+      );
 
-    const yDoc = this.getOrCreateYDoc(note.id);
-    this.connectionToNoteId.set(client, note.id);
-    this.connectionToYDoc.set(client, yDoc);
-    yDoc.connect(client);
-    this.logger.debug(
-      `Connection to note '${note.id}' by user '${user.username}'`,
-    );
+      const user = await this.userService.getUserByUsername(username);
+      const note = await getNoteFromRealtimePath(
+        this.noteService,
+        req.url ?? '',
+      );
+
+      if (!(await this.permissionsService.mayRead(user, note))) {
+        return this.handleConnectionError(
+          client,
+          `Reading note '${note.id}' by user '${user.username}' denied!`,
+        );
+      }
+
+      const yDoc = this.getOrCreateYDoc(note.id);
+      this.connectionToNoteId.set(client, note.id);
+      this.connectionToYDoc.set(client, yDoc);
+      yDoc.connect(client);
+      this.logger.debug(
+        `Connection to note '${note.id}' (${note.publicId}) by user '${user.username}'`,
+      );
+    } catch (error: unknown) {
+      // TODO Send error message to client to avoid reconnects for same note
+      return this.handleConnectionError(client, String(error));
+    }
   }
 
   private getOrCreateYDoc(noteId: string): MultiClientAwarenessYDoc {
@@ -154,7 +178,7 @@ export class RealtimeEditorGateway
     }
     const encoder = encoding.createEncoder();
     encoding.writeVarUint(encoder, MessageType.SYNC);
-    SyncProtocol.readSyncMessage(decoder, encoder, yDoc, null);
+    readSyncMessage(decoder, encoder, yDoc, null);
     return Promise.resolve(encoding.toUint8Array(encoder));
   }
 
@@ -178,7 +202,7 @@ export class RealtimeEditorGateway
       // We didn't get a yDoc
       return Promise.reject();
     }
-    AwarenessProtocol.applyAwarenessUpdate(
+    applyAwarenessUpdate(
       yDoc.awareness,
       decoding.readVarUint8Array(decoder),
       client,

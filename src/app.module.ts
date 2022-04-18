@@ -34,6 +34,7 @@ import { NotesModule } from './notes/notes.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { RevisionsModule } from './revisions/revisions.module';
+import { SessionModule } from './session/session.module';
 import { UsersModule } from './users/users.module';
 
 const routes: Routes = [
@@ -87,6 +88,7 @@ const routes: Routes = [
     FrontendConfigModule,
     RealtimeModule,
     IdentityModule,
+    SessionModule,
   ],
   controllers: [],
   providers: [FrontendConfigService],
