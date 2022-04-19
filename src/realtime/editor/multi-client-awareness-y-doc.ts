@@ -32,7 +32,7 @@ export class MultiClientAwarenessYDoc extends Doc {
     { added, updated, removed }: ClientIdUpdate,
     origin: WebSocket,
   ): void {
-    const changedClients = added.concat(updated, removed);
+    const changedClients = [...added, ...updated, ...removed];
     const encoder = encoding.createEncoder();
     encoding.writeVarUint(encoder, MessageType.AWARENESS);
     encoding.writeVarUint8Array(
