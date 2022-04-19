@@ -11,8 +11,6 @@ import WebSocket, { Server, ServerOptions } from 'ws';
 
 import { MessageType } from './message-type';
 
-export type MessageHandlerCallbackResponse = Promise<Uint8Array | void>;
-
 export class YjsWebsocketAdapter extends WsAdapter {
   protected readonly logger = new Logger(YjsWebsocketAdapter.name);
 
@@ -24,7 +22,6 @@ export class YjsWebsocketAdapter extends WsAdapter {
     client: WebSocket,
     handlers: MessageMappingProperties[],
   ): void {
-    client.binaryType = 'arraybuffer';
     client.on('message', (data: ArrayBuffer) => {
       const uint8Data = new Uint8Array(data);
       const decoder = decoding.createDecoder(uint8Data);
@@ -38,22 +35,15 @@ export class YjsWebsocketAdapter extends WsAdapter {
         );
         return;
       }
-      (handler.callback(decoder) as MessageHandlerCallbackResponse)
-        .then((response) => {
-          if (!response) {
-            return;
-          }
-          client.send(response, {
-            binary: true,
-          });
-        })
-        .catch((error: Error) => {
-          this.logger.error(
-            `An error occurred while handling message: ${String(error)}`,
-            error.stack ?? 'no-stack',
-            'yjs-websocket-adapter',
-          );
-        });
+      try {
+        handler.callback(decoder);
+      } catch (error: unknown) {
+        this.logger.error(
+          `An error occurred while handling message: ${String(error)}`,
+          (error as Error).stack ?? 'no-stack',
+          'yjs-websocket-adapter',
+        );
+      }
     });
   }
 

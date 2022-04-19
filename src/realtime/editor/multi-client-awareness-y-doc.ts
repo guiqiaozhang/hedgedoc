@@ -6,7 +6,7 @@
 import { encoding } from 'lib0';
 import WebSocket from 'ws';
 import { Awareness, encodeAwarenessUpdate } from 'y-protocols/awareness';
-import { writeUpdate } from 'y-protocols/sync';
+import { writeSyncStep1, writeUpdate } from 'y-protocols/sync';
 import { Doc } from 'yjs';
 
 import { MessageType } from './message-type';
@@ -57,6 +57,28 @@ export class MultiClientAwarenessYDoc extends Doc {
 
   public connect(client: WebSocket): void {
     this.clients.add(client);
+
+    // send sync step 1
+    const encoder = encoding.createEncoder();
+    encoding.writeVarUint(encoder, MessageType.SYNC);
+    writeSyncStep1(encoder, this);
+
+    const v = encoding.toUint8Array(encoder);
+    client.send(v);
+
+    const awarenessStates = this.awareness.getStates();
+    if (awarenessStates.size > 0) {
+      const encoder = encoding.createEncoder();
+      encoding.writeVarUint(encoder, MessageType.AWARENESS);
+      encoding.writeVarUint8Array(
+        encoder,
+        encodeAwarenessUpdate(
+          this.awareness,
+          Array.from(awarenessStates.keys()),
+        ),
+      );
+      client.send(encoding.toUint8Array(encoder));
+    }
   }
 
   public disconnect(client: WebSocket): void {

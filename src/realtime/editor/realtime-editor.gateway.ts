@@ -25,7 +25,6 @@ import { HEDGEDOC_SESSION } from '../../utils/session';
 import { MessageType } from './message-type';
 import { MultiClientAwarenessYDoc } from './multi-client-awareness-y-doc';
 import { getNoteFromRealtimePath } from './utils/get-note-from-realtime-path';
-import { MessageHandlerCallbackResponse } from './yjs-websocket.adapter';
 
 /**
  * Gateway implementing the realtime logic required for realtime note editing.
@@ -96,6 +95,7 @@ export class RealtimeEditorGateway
     client: WebSocket,
     req: IncomingMessage,
   ): Promise<void> {
+    client.binaryType = 'arraybuffer';
     client.on('close', () => this.handleDisconnect(client));
 
     const cookieHeader = req.headers.cookie;
@@ -165,21 +165,20 @@ export class RealtimeEditorGateway
    * @returns Uint8Array Binary data that should be send as a response to the message back to the client.
    */
   @SubscribeMessage(MessageType.SYNC)
-  handleMessageSync(
-    client: WebSocket,
-    decoder: decoding.Decoder,
-  ): MessageHandlerCallbackResponse {
+  handleMessageSync(client: WebSocket, decoder: decoding.Decoder): void {
     this.logger.debug('Received SYNC message');
 
     const yDoc = this.connectionToYDoc.get(client);
     if (!yDoc) {
       // We didn't get a yDoc
-      return Promise.reject();
+      return;
     }
     const encoder = encoding.createEncoder();
     encoding.writeVarUint(encoder, MessageType.SYNC);
     readSyncMessage(decoder, encoder, yDoc, null);
-    return Promise.resolve(encoding.toUint8Array(encoder));
+    if (encoding.length(encoder) > 1) {
+      client.send(encoding.toUint8Array(encoder));
+    }
   }
 
   /**
@@ -191,23 +190,19 @@ export class RealtimeEditorGateway
    * @returns Uint8Array Binary data that should be send as a response to the message back to the client.
    */
   @SubscribeMessage(MessageType.AWARENESS)
-  handleMessageAwareness(
-    client: WebSocket,
-    decoder: decoding.Decoder,
-  ): MessageHandlerCallbackResponse {
+  handleMessageAwareness(client: WebSocket, decoder: decoding.Decoder): void {
     this.logger.debug('Received AWARENESS message');
 
     const yDoc = this.connectionToYDoc.get(client);
     if (!yDoc) {
       // We didn't get a yDoc
-      return Promise.reject();
+      return;
     }
     applyAwarenessUpdate(
       yDoc.awareness,
       decoding.readVarUint8Array(decoder),
       client,
     );
-    return Promise.resolve();
   }
 
   /**
@@ -219,11 +214,7 @@ export class RealtimeEditorGateway
    * @returns Uint8Array Binary data that should be send as a response to the message back to the client.
    */
   @SubscribeMessage(MessageType.HEDGEDOC)
-  handleMessageHedgeDoc(
-    client: WebSocket,
-    decoder: decoding.Decoder,
-  ): MessageHandlerCallbackResponse {
+  handleMessageHedgeDoc(client: WebSocket, decoder: decoding.Decoder): void {
     this.logger.debug('Received HEDGEDOC message');
-    return Promise.resolve();
   }
 }
