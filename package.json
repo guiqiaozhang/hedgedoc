@@ -70,7 +70,6 @@
     "swagger-ui-express": "4.3.0",
     "typeorm": "0.2.45",
     "y-protocols": "1.0.5",
-    "y-websocket": "1.4.1",
     "yjs": "13.5.34"
   },
   "devDependencies": {
