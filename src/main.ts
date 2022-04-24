@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 The HedgeDoc developers (see AUTHORS file)
+ * SPDX-FileCopyrightText: 2022 The HedgeDoc developers (see AUTHORS file)
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
@@ -19,7 +19,6 @@ import { BackendType } from './media/backends/backend-type.enum';
 import { YjsWebsocketAdapter } from './realtime/editor/yjs-websocket.adapter';
 import { SessionService } from './session/session.service';
 import { setupSpecialGroups } from './utils/createSpecialGroups';
-import { setupFrontendProxy } from './utils/frontend-integration';
 import { setupSessionMiddleware } from './utils/session';
 import { setupValidationPipe } from './utils/setup-pipes';
 import { setupPrivateApiDocs, setupPublicApiDocs } from './utils/swagger';
@@ -56,7 +55,6 @@ async function bootstrap(): Promise<void> {
       `Serving OpenAPI docs for private api under '/private/apidoc'`,
       'AppBootstrap',
     );
-    await setupFrontendProxy(app, logger);
   }
 
   await setupSpecialGroups(app);
